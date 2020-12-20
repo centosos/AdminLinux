@@ -1,0 +1,24 @@
+---
+- hosts: all
+  roles:
+    - role: ahharu.mdadm
+  pre_tasks:
+    - name: Install mdadm
+      package:
+        name: mdadm
+        state: present
+
+  vars:
+    # Define Raid Arrays to manage
+    mdadm_arrays:
+      - name: md0
+        mountpoint: /mnt/md0
+        state: present
+        level: '10'
+        filesystem: ext4
+        opts: noatime
+        devices:
+          - '/dev/sdb'
+          - '/dev/sdc'
+          - '/dev/sdd'
+          - '/dev/sde'
