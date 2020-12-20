@@ -1,0 +1,17 @@
+Vagrant.configure("2") do |config|
+  config.vm.box = "debian/stretch64"
+
+  config.vm.provider 'virtualbox' do |vb|
+    # Customize the amount of memory on the VM:
+    vb.memory = '1024'
+
+    5.times do |n|
+      path = "../disk_#{n}.vdi"
+      size = 2000  # in MB
+      unless File.exist? path
+        vb.customize ['createhd', '--filename', path, '--variant', 'Fixed', '--size', size]
+        vb.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', n + 1, '--device', 0, '--type', 'hdd', '--medium', path]
+      end
+    end
+  end
+end
