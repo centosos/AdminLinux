@@ -1,0 +1,117 @@
+---
+- hosts: all
+  tasks:
+    - name: Init archlinux keyring
+      shell:
+        cmd: "{{ item }}"
+      with_items:
+        - pacman-key --init
+        - pacman-key --populate
+
+    # Первое задание
+    - name: Add the group 'admin'
+      group:
+        name: admin
+
+    - name: Append root to admin group
+      user:
+        name: root
+        groups:
+          - admin
+        append: yes
+
+    - name: Add the user 'foo' with a primary group of 'admin'
+      user:
+        name: foo
+        group: admin
+        home: /home/foo
+        shell: /bin/bash
+        # Чтобы проще было дз проверять, password: qwerty
+        password: $6$K33T0ddxOuRZa/4e$vmckZdwtXec0x4.Sxqmm5/9UmfyDsKVWXuErnw3NVK8LSCN8XptzM0Kid/AHpxHe4.0M9gubH8bdshMcOLoom1
+
+    - name: Add the user 'bar'
+      user:
+        name: bar
+        home: /home/bar
+        shell: /bin/bash
+        # Чтобы проще было дз проверять, password: qwerty
+        password: $6$K33T0ddxOuRZa/4e$vmckZdwtXec0x4.Sxqmm5/9UmfyDsKVWXuErnw3NVK8LSCN8XptzM0Kid/AHpxHe4.0M9gubH8bdshMcOLoom1
+
+    - name: Add the user 'buz'
+      user:
+        name: buz
+        home: /home/buz
+        shell: /bin/bash
+        # Чтобы проще было дз проверять, password: qwerty
+        password: $6$K33T0ddxOuRZa/4e$vmckZdwtXec0x4.Sxqmm5/9UmfyDsKVWXuErnw3NVK8LSCN8XptzM0Kid/AHpxHe4.0M9gubH8bdshMcOLoom1
+
+    - name: Install openssh
+      package:
+        name: openssh
+        state: present
+
+    - name: Run openssh service
+      service:
+        name: sshd
+        enabled: yes
+        state: started
+
+    - name: Set pam config for sshd
+      template:
+        dest: /etc/pam.d/sshd
+        src: templates/pam-sshd.j2
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Set pam auth using custom script
+      template:
+        dest: /usr/lib/security/admin-weekends.sh
+        src: templates/admin-weekends.sh
+        owner: root
+        group: root
+        mode: 0755
+
+    # Второе задание
+    - name: Install docker
+      package:
+        name: docker
+        state: present
+
+    - name: Start docker daemon
+      service:
+        name: docker
+        enabled: yes
+        state: started
+
+    - name: Add the user 'bob' to a docker group
+      user:
+        name: bob
+        append: yes
+        groups:
+          - docker
+      notify:
+        - restart docker
+
+    - name: Add the user 'ross'
+      user:
+        name: ross
+        append: yes
+        groups:
+          - docker
+      notify:
+        - restart docker
+
+    - name: Adds permission to reload and restart docker
+      template:
+        dest: /etc/sudoers.d/docker
+        src: templates/docker-sudoers.j2
+        owner: root
+        group: root
+        mode: 0440
+
+  handlers:
+    - name: restart docker
+      service:
+        name: docker
+        state: reloaded

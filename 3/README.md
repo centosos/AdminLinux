@@ -23,3 +23,13 @@
 ```bash
 vagrant up --provision
 ```
+
+## Проверка
+
+Для проверки дождитесь воскресенья и введите:
+
+```bash
+vagrant ssh
+ssh foo@localhost
+ssh buz@localhost
+```
