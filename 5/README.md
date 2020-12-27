@@ -298,21 +298,30 @@ Pass 4: Checking reference counts
 Pass 5: Checking group summary information
 /dev/mapper/labgr-first: 12/255488 files (0.0% non-contiguous), 515398/1021952 blocks
 
-$ sudo resize2fs /dev/labgr/first 2100M
+$ sudo resize2fs /dev/labgr/first 1100M
 resize2fs 1.43.4 (31-Jan-2017)
-resize2fs: New size smaller than minimum (966495)
+Resizing the filesystem on /dev/labgr/first to 281600 (4k) blocks.
+The filesystem on /dev/labgr/first is now 281600 (4k) blocks long.
+
+$ sudo lvreduce -L 1100M /dev/labgr/first
+  WARNING: Reducing active and open logical volume to 1.07 GiB.
+  THIS MAY DESTROY YOUR DATA (filesystem etc.)
+Do you really want to reduce labgr/first? [y/n]: y
+  Size of logical volume labgr/first changed from 1.95 GiB (499 extents) to 1.07 GiB (275 extents).
+  Logical volume labgr/first successfully resized.
+
 
 $ sudo mount /dev/labgr/first /mnt
 $ sudo df -h
 Filesystem               Size  Used Avail Use% Mounted on
 udev                     488M     0  488M   0% /dev
-tmpfs                    100M  4.4M   96M   5% /run
-/dev/sda1                 19G  1.1G   17G   7% /
+tmpfs                    100M  3.2M   97M   4% /run
+/dev/sda1                 19G  895M   17G   6% /
 tmpfs                    499M     0  499M   0% /dev/shm
 tmpfs                    5.0M     0  5.0M   0% /run/lock
 tmpfs                    499M     0  499M   0% /sys/fs/cgroup
 tmpfs                    100M     0  100M   0% /run/user/1000
-/dev/mapper/labgr-first  3.9G  1.9G  1.8G  52% /mnt
+/dev/mapper/labgr-first  1.1G  4.9M  975M   1% /mnt
 ```
 
 ### 5. Создать несколько новых файлов и создать снимок
